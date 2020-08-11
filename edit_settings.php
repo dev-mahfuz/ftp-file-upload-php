@@ -45,7 +45,7 @@
                             </div>
                             <div class="form-group">
                                 <div> <label>FTP Password</label>
-                                    <input type="text" id="ftp_password" name="ftp_password" class="form-control" value="<?=$ftp_setting['ftp_password']?>">
+                                    <input type="password" id="ftp_password" name="ftp_password" class="form-control" value="<?=$ftp_setting['ftp_password']?>">
                                    
                                 </div>
                             </div>

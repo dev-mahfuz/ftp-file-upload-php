@@ -8,17 +8,16 @@ function get_ftp_setting(){
 		return $FTP_SETTINGS;
 	}
 	
-        $value = @file_get_contents(__DIR__.'/ftp.config');
-        if ($value != false && $value != '' && is_string($value)) {
-            $value = json_decode($value, true);
-			if(!isset($value['ftp_upload'])){
-				$value['ftp_upload'] = 0;
-			}
-            $FTP_SETTINGS = $value;
-            return $value;
-        }
-        return ['ftp_upload' => 0];
-	
+    $value = @file_get_contents(__DIR__.'/ftp.config');
+    if ($value != false && $value != '' && is_string($value)) {
+        $value = json_decode($value, true);
+		if(!isset($value['ftp_upload'])){
+			$value['ftp_upload'] = 0;
+		}
+        $FTP_SETTINGS = $value;
+        return $value;
+    }
+    return ['ftp_upload' => 0];
 }
 
 function save_ftp_setting($data){
@@ -72,5 +71,34 @@ function upload_to_ftp($filename, $config = array()){
             $ftp->close();
         }
 	}
+    return false;
+}
+
+
+function delete_file_from_ftp($filename){
+    $ftp_setting = get_ftp_setting();
+    
+    if ($ftp_setting['ftp_upload'] == 0) {
+        return false;
+    }
+    if($filename!=''){
+        include_once 'autoload.php';
+        
+        $ftp = new \FtpClient\FtpClient();
+        $ftp->connect($ftp_setting['ftp_host'], false, $ftp_setting['ftp_port']);
+        $login = $ftp->login($ftp_setting['ftp_username'], $ftp_setting['ftp_password']);
+
+        if ($login) {
+            if (!empty($ftp_setting['ftp_path'])) {
+                if ($ftp_setting['ftp_path'] != "./") {
+                    $ftp->chdir($ftp_setting['ftp_path']);
+                }
+            }
+            $ftp->pasv(true);
+            $ftp->delete($filename);
+            @unlink($filename);
+            $ftp->close();
+        }
+    }
     return false;
 }
